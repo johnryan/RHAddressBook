@@ -69,7 +69,7 @@ void rh_dispatch_sync_for_addressbook(RHAddressBook *addressbook, dispatch_block
 //determine if the current queue is correct for the specified addressbook
 BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000
-    if (dispatch_get_specific != NULL){
+    if (&dispatch_get_specific != NULL){
         void *context = dispatch_get_specific(&RHAddressBookDispatchQueueIdentifier);
         return context == (__bridge void *)(addressBook);
     } else {
@@ -160,7 +160,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
         
         //ios5+ set our queues abcontext to self
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000
-        if (dispatch_queue_set_specific != NULL){
+        if (&dispatch_queue_set_specific != NULL){
             dispatch_queue_set_specific(_addressBookQueue, &RHAddressBookDispatchQueueIdentifier, (__bridge void *)(self), NULL);
         }
 #endif
@@ -170,7 +170,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
         //setup
         
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 60000
-        if (ABAddressBookCreateWithOptions != NULL){
+        if (&ABAddressBookCreateWithOptions != NULL){
             __block CFErrorRef errorRef = NULL;
             rh_dispatch_sync_for_addressbook(self, ^{
                 _addressBookRef = ABAddressBookCreateWithOptions(nil, &errorRef);
@@ -252,7 +252,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 
 +(RHAuthorizationStatus)authorizationStatus{
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 60000
-    if (ABAddressBookGetAuthorizationStatus != NULL){
+    if (&ABAddressBookGetAuthorizationStatus != NULL){
         ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
         switch (status) {
             case kABAuthorizationStatusNotDetermined: return RHAuthorizationStatusNotDetermined;
@@ -272,7 +272,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
     
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 60000
     
-    if (ABAddressBookRequestAccessWithCompletion != NULL){
+    if (/* DISABLES CODE */ (&ABAddressBookRequestAccessWithCompletion) != NULL){
         
         [self performAddressBookAction:^(ABAddressBookRef addressBookRef) {
 
@@ -897,7 +897,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 }
 
 -(NSArray*)addPeopleFromVCardRepresentation:(NSData*)representation toSource:(RHSource*)source{
-    if (!ABPersonCreatePeopleInSourceWithVCardRepresentation) return nil; //availability check
+    if (!&ABPersonCreatePeopleInSourceWithVCardRepresentation) return nil; //availability check
 
     NSMutableArray *newPeople = [NSMutableArray array];
 
@@ -924,7 +924,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 }
 
 -(NSData*)vCardRepresentationForPeople:(NSArray*)people{
-    if (!ABPersonCreateVCardRepresentationWithPeople) return nil; //availability check
+    if (!&ABPersonCreateVCardRepresentationWithPeople) return nil; //availability check
     return [RHPerson vCardRepresentationForPeople:people];
 }
 
@@ -1101,7 +1101,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 
 +(ABPersonCompositeNameFormat)compositeNameFormat{
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-    if (ABPersonGetCompositeNameFormatForRecord != NULL){
+    if (&ABPersonGetCompositeNameFormatForRecord != NULL){
         return ABPersonGetCompositeNameFormatForRecord(NULL);
     } else {
 #endif //end iOS7+
