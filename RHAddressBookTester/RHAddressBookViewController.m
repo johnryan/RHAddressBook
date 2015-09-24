@@ -31,6 +31,18 @@
 
 @synthesize addressBook=_addressBook;
 
+- (id)initWithStyle:(UITableViewStyle)style{
+    return [self initWithAddressBook:nil];
+}
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
+    return [self initWithAddressBook:nil];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder{
+    return [self initWithAddressBook:nil];
+}
+
 - (instancetype)initWithAddressBook:(RHAddressBook *)addressBook {
     self = [super initWithStyle:UITableViewStyleGrouped];
     if (self) {

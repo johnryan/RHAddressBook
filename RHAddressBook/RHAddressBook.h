@@ -114,7 +114,7 @@ typedef NS_ENUM(NSUInteger, RHAuthorizationStatus) {
 //add
 
 //convenience people methods (return a +1 retain count object and are automatically added to the current addressBook)
--(RHPerson*)newPersonInDefaultSource; //returns nil on error (eg read only source)
+@property (NS_NONATOMIC_IOSONLY, readonly, strong) RHPerson *newPersonInDefaultSource; //returns nil on error (eg read only source)
 -(RHPerson*)newPersonInSource:(RHSource*)source;
 
 //add a person to the current address book instance (this will thrown an exception if the RHPerson object belongs to another ab, eg by being been added to another ab, or created with a source object that was not from the current addressbook)
@@ -130,7 +130,7 @@ typedef NS_ENUM(NSUInteger, RHAuthorizationStatus) {
 #endif //end iOS5+
 
 //convenience group methods (return a +1 retain count object and are automatically added to the current addressBook)
--(RHGroup*)newGroupInDefaultSource; //returns nil on error (eg read only source or does not support groups ex. exchange)
+@property (NS_NONATOMIC_IOSONLY, readonly, strong) RHGroup *newGroupInDefaultSource; //returns nil on error (eg read only source or does not support groups ex. exchange)
 -(RHGroup*)newGroupInSource:(RHSource*)source;
 
 //add a group to the current address book instance (this will thrown an exception if the RHGroup object belongs to another ab, eg by being been added to another ab, or created with a source object that was not from the current addressbook)
@@ -146,7 +146,7 @@ typedef NS_ENUM(NSUInteger, RHAuthorizationStatus) {
 
 
 //save
--(BOOL)save;
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL save;
 -(BOOL)saveWithError:(NSError**)error;
 @property (nonatomic, readonly) BOOL hasUnsavedChanges;
 -(void)revert;

@@ -177,16 +177,9 @@
     
     __block CFDataRef dataRef = NULL;
     [self performRecordAction:^(ABRecordRef recordRef) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 40100
         if (&ABPersonCopyImageDataWithFormat != NULL){
             dataRef = ABPersonCopyImageDataWithFormat(recordRef, imageFormat);
-        } else {
-#endif
-            //if not available, default to the pre-iOS 4 code.
-            dataRef = ABPersonCopyImageData(_recordRef);
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 40100
         }
-#endif
     } waitUntilDone:YES];
     
     if(dataRef){
@@ -462,10 +455,10 @@
 }
 
 // if person == kABPersonKindOrganization
--(BOOL)isOrganization{ return ([[self kind] isEqualToNumber:(NSNumber*)kABPersonKindOrganization]); }
+-(BOOL)isOrganization{ return ([self.kind isEqualToNumber:(NSNumber*)kABPersonKindOrganization]); }
 
 // if person == kABPersonKindPerson
--(BOOL)isPerson{ return ([[self kind] isEqualToNumber:(NSNumber*)kABPersonKindPerson]); }
+-(BOOL)isPerson{ return ([self.kind isEqualToNumber:(NSNumber*)kABPersonKindPerson]); }
 
 
 #pragma mark - Phone numbers
@@ -538,7 +531,7 @@
 
 #pragma mark - vCard formatting (iOS5 +)
 -(NSData*)vCardRepresentation{    
-    return [[self class] vCardRepresentationForPeople:[NSArray arrayWithObject:self]];
+    return [[self class] vCardRepresentationForPeople:@[self]];
 }
 
 +(NSData*)vCardRepresentationForPeople:(NSArray*)people{
@@ -592,7 +585,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
 -(ABPersonCompositeNameFormat)compositeNameFormat{
     __block ABPersonCompositeNameFormat format = [RHAddressBook compositeNameFormat];
-    if (ABPersonGetCompositeNameFormatForRecord != NULL){
+    if (&ABPersonGetCompositeNameFormatForRecord != NULL){
         [self performRecordAction:^(ABRecordRef recordRef) {
             format = ABPersonGetCompositeNameFormatForRecord(recordRef);
         } waitUntilDone:YES];

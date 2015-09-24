@@ -52,15 +52,15 @@
 @property (nonatomic, readonly, copy) NSArray *peopleOrderedByUsersPreference;
 
 //add (these methods just fwd to the equivalent convenience methods on RHAddressBook, including adding to the addressbook)
--(RHPerson*)newPerson; //returns nil on error (eg read only source)
--(RHGroup*)newGroup; //returns nil on error (eg read only source or does not support groups ex. exchange)
+@property (NS_NONATOMIC_IOSONLY, readonly, strong) RHPerson *newPerson; //returns nil on error (eg read only source)
+@property (NS_NONATOMIC_IOSONLY, readonly, strong) RHGroup *newGroup; //returns nil on error (eg read only source or does not support groups ex. exchange)
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000
 
 //add from vCard (iOS5+) (pre iOS5 these methods are no-ops)
 -(NSArray*)addPeopleFromVCardRepresentation:(NSData*)representation; //returns an array of RHPerson objects
 
--(NSData*)vCardRepresentationForPeople;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSData *vCardRepresentationForPeople;
 
 #endif //end iOS5+
 

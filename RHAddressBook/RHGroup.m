@@ -73,7 +73,7 @@
 }
 
 -(NSInteger)count{
-    return [[self members] count];
+    return self.members.count;
 }
 
 #pragma mark - add / remove
@@ -106,7 +106,7 @@
 }
 
 -(void)removeAllMembers{
-    NSArray *members = [self members];
+    NSArray *members = self.members;
     for (RHPerson *person in members) {
         [self removeMember:person];
     }
@@ -183,7 +183,7 @@
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000
 -(NSData*)vCardRepresentationForMembers{
-    return [_addressBook vCardRepresentationForPeople:[self members]];
+    return [_addressBook vCardRepresentationForPeople:self.members];
 }
 
 #if RH_AB_INCLUDE_GEOCODING

@@ -81,7 +81,7 @@ typedef RHMutableMultiValue RHMutableMultiDictionaryValue;
 -(NSUInteger)firstIndexOfValue:(id)value;
 
 //mutable copy
--(RHMutableMultiValue*)mutableCopy;
+@property (NS_NONATOMIC_IOSONLY, readonly, strong) RHMutableMultiValue *mutableCopy;
 
 //equality
 -(BOOL)isEqualToMultiValue:(RHMultiValue*)otherMultiValue;

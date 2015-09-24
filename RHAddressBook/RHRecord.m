@@ -214,7 +214,7 @@
     return [_addressBook saveWithError:error];
 }
 -(BOOL)hasUnsavedChanges{
-    return [_addressBook hasUnsavedChanges];
+    return _addressBook.hasUnsavedChanges;
 }
 -(void)revert{
     [_addressBook revert];

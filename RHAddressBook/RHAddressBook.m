@@ -156,20 +156,16 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
     if (self){
         
         //do all our work on a single sync queue.
-        _addressBookQueue = dispatch_queue_create([[NSString stringWithFormat:@"RHAddressBookQueue for instance %p", self] UTF8String], DISPATCH_QUEUE_SERIAL);
+        _addressBookQueue = dispatch_queue_create([NSString stringWithFormat:@"RHAddressBookQueue for instance %p", self].UTF8String, DISPATCH_QUEUE_SERIAL);
         
         //ios5+ set our queues abcontext to self
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000
         if (&dispatch_queue_set_specific != NULL){
             dispatch_queue_set_specific(_addressBookQueue, &RHAddressBookDispatchQueueIdentifier, (__bridge void *)(self), NULL);
         }
-#endif
         
         _sharedServices = [RHAddressBookSharedServices sharedInstance]; //pointer to singleton (this causes the geo cache to be rebuilt if needed)
         
         //setup
-        
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 60000
         if (&ABAddressBookCreateWithOptions != NULL){
             __block CFErrorRef errorRef = NULL;
             rh_dispatch_sync_for_addressbook(self, ^{
@@ -185,19 +181,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
                 return nil;
             }
             
-        } else {
-#endif //end iOS6+
-            
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            rh_dispatch_sync_for_addressbook(self, ^{
-                _addressBookRef = ABAddressBookCreate();
-            });
-#pragma clang diagnostic pop
-            
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 60000
         }
-#endif //end iOS6+
         
         rh_dispatch_sync_for_addressbook(self, ^{
             //weak linking mutable sets
@@ -269,31 +253,22 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 
 -(void)requestAuthorizationWithCompletion:(void (^)(bool granted, NSError* error))completion{
     completion = (__bridge id)Block_copy((__bridge void *)completion);
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 60000
-    
-    if (/* DISABLES CODE */ (&ABAddressBookRequestAccessWithCompletion) != NULL){
+        
+    if (&ABAddressBookRequestAccessWithCompletion != NULL){
         
         [self performAddressBookAction:^(ABAddressBookRef addressBookRef) {
-
+            
             ABAddressBookRequestAccessWithCompletion(addressBookRef, ^(bool granted, CFErrorRef error) {
                 completion(granted, (__bridge NSError*)error);
                 if (error) CFRelease(error);
                 Block_release((__bridge void *)completion);
             });
-         
+            
         } waitUntilDone:YES];
         
         return; //if we were able to call ABAddressBookRequestAccessWithCompletion
     }
     
-#endif //end iOS6+
-
-    //else, run the completion block async (access is always allowed pre iOS6)
-    dispatch_async(dispatch_get_main_queue(), ^{
-        completion(YES, nil);
-        Block_release((__bridge void *)completion);
-    });
 }
 
 
@@ -658,12 +633,12 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 }
 
 -(NSArray*)peopleWithEmail:(NSString*)email{
-    NSString *formattedEmail = [[email stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] lowercaseString];
+    NSString *formattedEmail = [email stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]].lowercaseString;
 
     NSMutableArray *result = [NSMutableArray array];
     rh_dispatch_sync_for_addressbook(self, ^{
-        for(RHPerson *person in [self people]) {
-            NSArray *emails = [[person.emails values] valueForKey:@"lowercaseString"];
+        for(RHPerson *person in self.people) {
+            NSArray *emails = [(person.emails).values valueForKey:@"lowercaseString"];
             if ([emails containsObject:formattedEmail]){
                 [result addObject:person];
             }
@@ -729,7 +704,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 
 #if USE_PERSON_ID_MAP
         
-        id mapPerson = CFDictionaryGetValue(_personIDToRecordMap, (__bridge const void *)([NSNumber numberWithInt:personID]));
+        id mapPerson = CFDictionaryGetValue(_personIDToRecordMap, (__bridge const void *)(@(personID)));
         if (mapPerson) person = arc_retain(mapPerson);        
 #else        
         //look in the cache
@@ -791,7 +766,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 
 #pragma mark - add
 -(RHPerson*)newPersonInDefaultSource{
-    RHPerson *newPerson = [RHPerson newPersonInSource:[self defaultSource]];
+    RHPerson *newPerson = [RHPerson newPersonInSource:self.defaultSource];
     [self addPerson:newPerson];
     return newPerson;
 }
@@ -841,7 +816,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 
 #pragma mark - add groups
 -(RHGroup*)newGroupInDefaultSource{
-    RHGroup *newGroup = [RHGroup newGroupInSource:[self defaultSource]];
+    RHGroup *newGroup = [RHGroup newGroupInSource:self.defaultSource];
     [self addGroup:newGroup];
     return newGroup;
 }
@@ -893,7 +868,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 
 #pragma mark - add from vCard (iOS5+)
 -(NSArray*)addPeopleFromVCardRepresentationToDefaultSource:(NSData*)representation{
-    return [self addPeopleFromVCardRepresentation:representation toSource:[self defaultSource]];
+    return [self addPeopleFromVCardRepresentation:representation toSource:self.defaultSource];
 }
 
 -(NSArray*)addPeopleFromVCardRepresentation:(NSData*)representation toSource:(RHSource*)source{
@@ -1019,7 +994,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
     __block CFErrorRef cfError = NULL;
     
     rh_dispatch_sync_for_addressbook(self, ^{
-        if ([self hasUnsavedChanges]) {
+        if (self.hasUnsavedChanges) {
             result = ABAddressBookSave(_addressBookRef, &cfError);
         }
     });
@@ -1056,7 +1031,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 
 -(void)addressBookExternallyChanged:(NSNotification*)notification{
     //notification on external changes. (revert if no local changes so always up-to-date)
-    if (![self hasUnsavedChanges]){
+    if (!self.hasUnsavedChanges){
         [self revert];
     } else {
         RHLog(@"Not auto-reverting on notification of external address book changes as we have unsaved local changes.");
@@ -1074,7 +1049,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
         for (RHPerson *person in _people) {
             if (person.recordID != kABRecordInvalidID){
                 //add the person record to the id map
-                CFDictionarySetValue(_personIDToRecordMap, (__bridge const void *)([NSNumber numberWithInt:person.recordID]), (__bridge const void *)(person));
+                CFDictionarySetValue(_personIDToRecordMap, (__bridge const void *)(@(person.recordID)), (__bridge const void *)(person));
             }
         }
     };
@@ -1214,7 +1189,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 #if USE_PERSON_ID_MAP
         if ([record isKindOfClass:[RHPerson class]] && record.recordID != kABRecordInvalidID){
             //add the person record to the id map
-            CFDictionarySetValue(_personIDToRecordMap, (__bridge const void *)([NSNumber numberWithInt:record.recordID]), (__bridge const void *)(record));
+            CFDictionarySetValue(_personIDToRecordMap, (__bridge const void *)(@(record.recordID)), (__bridge const void *)(record));
         }
 #endif
 
@@ -1257,7 +1232,7 @@ BOOL rh_dispatch_is_current_queue_for_addressbook(RHAddressBook *addressBook){
 #if USE_PERSON_ID_MAP
         if ([_safeRecord isKindOfClass:[RHPerson class]]){
             //remove it from the id map
-            CFDictionaryRemoveValue(_personIDToRecordMap, (__bridge const void *)([NSNumber numberWithInt:_safeRecord.recordID]));
+            CFDictionaryRemoveValue(_personIDToRecordMap, (__bridge const void *)(@(_safeRecord.recordID)));
         }
 #endif
 

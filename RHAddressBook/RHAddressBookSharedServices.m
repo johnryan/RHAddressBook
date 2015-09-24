@@ -114,11 +114,10 @@ static __strong RHAddressBookSharedServices *_sharedInstance = nil;
         //because NSThread retains its target, we use a placeholder object that contains the threads main method
         RHAddressBookThreadMain *threadMain = arc_autorelease([[RHAddressBookThreadMain alloc] init]);
         _addressBookThread = [[NSThread alloc] initWithTarget:threadMain selector:@selector(threadMain:) object:nil];
-        [_addressBookThread setName:[NSString stringWithFormat:@"RHAddressBookSharedServicesThread for %p", self]];
+        _addressBookThread.name = [NSString stringWithFormat:@"RHAddressBookSharedServicesThread for %p", self];
         [_addressBookThread start];
 
         
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 60000
         if (&ABAddressBookCreateWithOptions != NULL){
             __block CFErrorRef errorRef = NULL;
             [_addressBookThread rh_performBlock:^{
@@ -135,28 +134,13 @@ static __strong RHAddressBookSharedServices *_sharedInstance = nil;
                 return nil;
             }
             
-        } else {
-#endif //end iOS6+
-            
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            [_addressBookThread rh_performBlock:^{
-                _addressBook = ABAddressBookCreate();
-            }];
-#pragma clang diagnostic pop
-            
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 60000
         }
-#endif //end iOS6+
-        
         
 #if RH_AB_INCLUDE_GEOCODING
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000
         if ([RHAddressBookSharedServices isGeocodingSupported]){
             [self loadCache];
             [self rebuildCache];
         }
-#endif //end iOS5+
 #endif //end Geocoding
 
         [self registerForAddressBookChanges];

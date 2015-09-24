@@ -50,7 +50,7 @@
 //the addressbook instance is guaranteed to stay alive until its last associated object is dealloc'd.
 //these methods do not automatically add the new object to the source.addressBook, if you want it added you will need do add it yourself. -[RHAddressBook addPerson:];
 +(instancetype)newPersonInSource:(RHSource*)source;
--(instancetype)initWithSource:(RHSource*)source;
+-(instancetype)initWithSource:(RHSource*)source NS_DESIGNATED_INITIALIZER;
 
 //look up an RHPerson instance for an existing ABRecordRef in a particular addressbook; if the current recordRef does not belong to the given addressbook, the person objects underlying personRef will differ from the passed in value. This is required in-order to maintain thread safety for the underlying AddressBook instance.
 +(RHPerson*)personForABRecordRef:(ABRecordRef)personRef inAddressBook:(RHAddressBook*)addressBook; //equivalent to -[RHAddressBook personForABRecordRef:];
@@ -88,7 +88,7 @@ typedef enum {
 @property (nonatomic, readonly, copy) NSData *originalImageData;
 -(NSData*)imageDataWithFormat:(ABPersonImageFormat)imageFormat;
 -(BOOL)setImage:(UIImage*)image;
--(BOOL)removeImage;
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL removeImage;
 
 //personal properties
 @property (nonatomic, copy, readonly) NSString *name;       // alias for compositeName
@@ -127,7 +127,7 @@ typedef enum {
 //Kind
 @property (nonatomic, copy) NSNumber *kind;                 // kABPersonKindProperty (Integer) possible values include (kABPersonKindPerson, kABPersonKindOrganization)
 -(BOOL)isOrganization;                                      // if person == kABPersonKindOrganization
--(BOOL)isPerson;                                            // if person == kABPersonKindPerson
+@property (NS_NONATOMIC_IOSONLY, getter=isPerson, readonly) BOOL person;                                            // if person == kABPersonKindPerson
 
 //Phone numbers
 @property (nonatomic, copy) RHMultiStringValue *phoneNumbers;     // kABPersonPhoneProperty (Multi String) possible labels are ( kABPersonPhoneMobileLabel, kABPersonPhoneIPhoneLabel, kABPersonPhoneMainLabel, kABPersonPhoneHomeFAXLabel, kABPersonPhoneWorkFAXLabel, kABPersonPhoneOtherFAXLabel, kABPersonPhonePagerLabel )
@@ -152,7 +152,7 @@ typedef enum {
                                                             // possible kABPersonSocialProfileServiceKey values ( kABPersonSocialProfileServiceTwitter, kABPersonSocialProfileServiceGameCenter, kABPersonSocialProfileService Facebook, kABPersonSocialProfileServiceMyspace, kABPersonSocialProfileServiceLinkedIn, kABPersonSocialProfileServiceFlickr )
 
 //vCard formatting (iOS5 +)
--(NSData*)vCardRepresentation; //the current persons vCard representation
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSData *vCardRepresentation; //the current persons vCard representation
 +(NSData*)vCardRepresentationForPeople:(NSArray*)people; //array of RHPerson Objects.
 
 //geocoding
@@ -164,13 +164,13 @@ typedef enum {
 #endif //end iOS5+
 
 //remove person from addressBook
--(BOOL)remove;
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL remove;
 @property (nonatomic, readonly) BOOL hasBeenRemoved; // we check to see if ABAddressBookGetPersonWithRecordID() returns NULL for self.recordID; This is the recommended approach from the AB docs.
 
 
 //composite name format for this explicit record
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
--(ABPersonCompositeNameFormat)compositeNameFormat; // at runtime, if you are running on a pre ios 7 device, we return the default system preference
+@property (NS_NONATOMIC_IOSONLY, readonly) ABPersonCompositeNameFormat compositeNameFormat; // at runtime, if you are running on a pre ios 7 device, we return the default system preference
 #endif //end iOS7+
 
 @end

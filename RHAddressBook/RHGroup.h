@@ -59,7 +59,7 @@
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000
 //vCard (iOS5+) pre iOS5 this method is a no-op
--(NSData*)vCardRepresentationForMembers;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSData *vCardRepresentationForMembers;
 
 #if RH_AB_INCLUDE_GEOCODING
 //geolocation
@@ -69,7 +69,7 @@
 #endif //end iOS5+
 
 //remove group from addressBook
--(BOOL)remove;
+@property (NS_NONATOMIC_IOSONLY, readonly) BOOL remove;
 
 
 @end

@@ -37,7 +37,13 @@
 
 @synthesize multiValueRef=_multiValueRef;
 
+
 #pragma mark - init
+
+-(id)init{
+    return [self initWithMultiValueRef:nil];
+}
+
 -(instancetype)initWithMultiValueRef:(ABMultiValueRef)multiValueRef{
     self = [super init];
     if (self){
@@ -124,7 +130,7 @@
 -(NSString*)contentDescription{
     NSString *result = @"";
 
-    NSUInteger index = [self count];
+    NSUInteger index = self.count;
     while (index > 0) {
         index--;
         result = [NSString stringWithFormat:@"\t%lu) %@=%@\n%@", (unsigned long)index, [self labelAtIndex:index], [self valueAtIndex:index], result];
@@ -134,7 +140,7 @@
 }
 
 -(NSString*)description{
-    return [NSString stringWithFormat:@"%@: <%p> type:%@ count:%lu contents:{%@}", NSStringFromClass([self class]), self, [RHRecord descriptionForPropertyType:[self propertyType]], (unsigned long)[self count], [self contentDescription]];
+    return [NSString stringWithFormat:@"%@: <%p> type:%@ count:%lu contents:{%@}", NSStringFromClass([self class]), self, [RHRecord descriptionForPropertyType:self.propertyType], (unsigned long)self.count, [self contentDescription]];
 }
 
 -(BOOL)isEqual:(id)object{
@@ -146,9 +152,9 @@
 }
 -(BOOL)isEqualToMultiValue:(RHMultiValue*)otherMultiValue{
     
-    if (![self count] == [otherMultiValue count]) return NO;
+    if (!self.count == otherMultiValue.count) return NO;
     
-    for (int i = 0; i < [self count]; i++) {
+    for (int i = 0; i < self.count; i++) {
         if (! [[self labelAtIndex:i] isEqualToString:[otherMultiValue labelAtIndex:i]]) return NO;
         if (! [[self valueAtIndex:i] isEqual:[otherMultiValue valueAtIndex:i]]) return NO;
     }

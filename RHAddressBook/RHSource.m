@@ -42,7 +42,7 @@
 
 -(ABSourceType)type{
    NSNumber *sourceType = [self getBasicValueForPropertyID:kABSourceTypeProperty];
-    return [sourceType intValue];
+    return sourceType.intValue;
 }
 
 //groups
@@ -124,7 +124,7 @@
 }
 
 -(NSData*)vCardRepresentationForPeople{
-    return [_addressBook vCardRepresentationForPeople:[self people]];
+    return [_addressBook vCardRepresentationForPeople:self.people];
 }
 
 #endif //end iOS5+

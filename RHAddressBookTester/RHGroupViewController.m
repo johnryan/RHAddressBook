@@ -22,6 +22,18 @@
 
 @synthesize group=_group;
 
+- (id)initWithStyle:(UITableViewStyle)style{
+    return [self initWithGroup:nil];
+}
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
+    return [self initWithGroup:nil];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder{
+    return [self initWithGroup:nil];
+}
+
 - (instancetype)initWithGroup:(RHGroup*)group{
     self = [super initWithStyle:UITableViewStylePlain];
     if (self) {
